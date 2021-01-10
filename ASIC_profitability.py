@@ -18,36 +18,36 @@ def get_user_input(text):
         return user_input
 
 
-def get_end_of_profit(bitcoin_price_growth):
-    end_of_profit = round(
+def get_time_interval(bitcoin_price_growth):
+    time_interval = round(
         (math.log(ASIC_yearly_revenue) - math.log(ASIC_yearly_cost))
         / (network_hashrate_growth - bitcoin_price_growth), 3)
-    return end_of_profit
+    return time_interval
 
 
-def get_mining_reward(end_of_profit):
+def get_mining_reward(time_interval):
     mining_reward = math.expm1(
-        - network_hashrate_growth * end_of_profit) * ASIC_yearly_revenue / - network_hashrate_growth
+        - network_hashrate_growth * time_interval) * ASIC_yearly_revenue / - network_hashrate_growth
     return mining_reward
 
 
-def get_buying_btc(end_of_profit):
+def get_buying_btc(time_interval):
     buying_btc = (
-        ASIC_yearly_cost * end_of_profit) + ASIC_price
+        ASIC_yearly_cost * time_interval) + ASIC_price
     return buying_btc
 
 
-def fair_price():
+def get_fair_price():
     print()
     current_price = get_user_input('Bitcoin Price in USD/BTC')
     # TODO: The script should get the price online.
 
-    end_of_profit = 2  # Assuming 2 years of profitable ASIC operation
-    mining_reward = get_mining_reward(end_of_profit)
-    buying_btc = get_buying_btc(end_of_profit)
-    target_price = buying_btc / mining_reward * current_price
+    time_interval = 2  # Assuming 2 years of ASIC operation
+    mining_reward = get_mining_reward(time_interval)
+    buying_btc = get_buying_btc(time_interval)
+    fair_price = buying_btc / mining_reward * current_price
     print(
-        f'The fair bitcoin price is estimated to be {target_price:.2f} USD/BTC')
+        f'The fair bitcoin price is estimated to be {fair_price:.2f} USD/BTC')
     exit()
 
 
@@ -61,11 +61,11 @@ if ASIC_yearly_cost >= ASIC_yearly_revenue:
     print('This ASIC is not profitable')
     exit()
 
-network_hashrate_growth = - round(-math.log(2)/2, 3)  # Assuming Moore's Law
 
-mining_reward, buying_btc = 0, 1
-bitcoin_price_growth = -100 * network_hashrate_growth
+network_hashrate_growth = - round(-math.log(2)/2, 3)  # Assuming Moore's Law
+n, mining_reward, buying_btc = 0, 0, 1
 # TODO: Find a better way than brute forcing the calculation.
+bitcoin_price_growth = -100 * network_hashrate_growth
 
 
 while mining_reward < buying_btc:
@@ -73,26 +73,26 @@ while mining_reward < buying_btc:
 
     if bitcoin_price_growth == network_hashrate_growth:
         print('This ASIC is only profitable if the bitcoin price rises faster than the network-hashrate')
-        fair_price()
-    # TODO: Better error handling.
+        get_fair_price()
 
-    mining_reward = get_mining_reward(get_end_of_profit(bitcoin_price_growth))
+    mining_reward = get_mining_reward(
+        get_time_interval(bitcoin_price_growth))
 
     buying_btc = ASIC_yearly_cost * \
-        get_end_of_profit(bitcoin_price_growth) + ASIC_price
+        get_time_interval(bitcoin_price_growth) + ASIC_price
+
+    n += 1
 
 
-if round(bitcoin_price_growth, 3) == 100*network_hashrate_growth + 0.001:
+if n == 1:
     print('Error: Check input parameters and run code again.')
     exit()
-# TODO: Better error handling.
 
-growth_ratio = math.exp(network_hashrate_growth - bitcoin_price_growth)
 
 print(
-    f"This ASIC is profitable if the network-hashrate rises no faster than {growth_ratio:.1f}-fold the bitcoin price."
+    f"This ASIC is profitable if the network-hashrate rises no faster than {math.exp(network_hashrate_growth - bitcoin_price_growth):.1f}-fold the bitcoin price."
 )
 print(
-    f"Assuming Moore's Law, this ASIC is profitable after {get_end_of_profit(bitcoin_price_growth):.1f} years.")
+    f"Assuming Moore's Law, this ASIC is profitable after {get_time_interval(bitcoin_price_growth):.1f} years.")
 
-fair_price()
+get_fair_price()
