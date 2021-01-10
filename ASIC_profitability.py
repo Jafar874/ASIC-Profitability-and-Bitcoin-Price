@@ -13,6 +13,7 @@ def get_user_input(text):
             continue
         if text == 'ASIC price in €' and user_input < 0:
             print('ASIC price cannot be less than zero.')
+            continue
         return user_input
 
 
