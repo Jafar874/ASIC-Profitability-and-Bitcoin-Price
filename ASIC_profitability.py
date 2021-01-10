@@ -41,6 +41,9 @@ while a < b:
 
     if k == -j:
         print('This miner is only profitable if the bitcoin price rises faster than the hashrate')
+        min_price = current_price * math.exp(k)
+        print(
+            f"Assuming Moore's Law, the bitcoin price must be at least {min_price:.2f} € in 1 year in order for this ASIC to be profitable.")
         exit()
     # TODO: Better error handling.
 
