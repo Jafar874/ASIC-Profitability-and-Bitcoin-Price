@@ -1,21 +1,38 @@
 import math
+from requests import get
 
 
 def get_user_input(text):
+    termination = ['exit', 'end', 'quit', 'break', 'escape']
+
     while True:
+        user_input = input(f"Enter {text}: ")
+
+        if user_input in termination:
+            exit()
+
         try:
-            user_input = float(input(f"Enter {text}: "))
+            user_input = float(user_input)
         except ValueError as e:
             print(f"{e}: Only numbers are allowed as input.")
             continue
+
         if text == 'ASIC price in €' and user_input < 0:
             print('ASIC prices cannot be negative.')
             continue
+
         if text != 'ASIC price in €' and user_input <= 0:
             print(
                 'ASIC operational costs, ASIC revenues and Bitcoin Prices cannot be zero or negative.')
             continue
+
         return user_input
+
+
+def get_current_price(crypto):
+    response = get(
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+crypto)
+    return float((response.json()[0]['current_price']))
 
 
 def get_time_interval(bitcoin_price_growth):
@@ -39,10 +56,8 @@ def get_buying_btc(time_interval):
 
 def get_fair_price():
     print()
-    current_price = get_user_input('Bitcoin Price in USD/BTC')
-    # TODO: The script should get the price online.
-
-    time_interval = 2  # Assuming 2 years of ASIC operation
+    current_price = get_current_price('bitcoin')
+    time_interval = 2  # i.e. assuming 2 years of ASIC operation
     mining_reward = get_mining_reward(time_interval)
     buying_btc = get_buying_btc(time_interval)
     fair_price = buying_btc / mining_reward * current_price
@@ -64,7 +79,6 @@ if ASIC_yearly_cost >= ASIC_yearly_revenue:
 
 network_hashrate_growth = - round(-math.log(2)/2, 3)  # Assuming Moore's Law
 n, mining_reward, buying_btc = 0, 0, 1
-# TODO: Find a better way than brute forcing the calculation.
 bitcoin_price_growth = -100 * network_hashrate_growth
 
 
