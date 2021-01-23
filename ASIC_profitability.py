@@ -1,5 +1,5 @@
 import math
-from requests import get
+import requests
 
 
 def get_user_input(text):
@@ -30,7 +30,7 @@ def get_user_input(text):
 
 
 def get_current_price(crypto):
-    response = get(
+    response = requests.get(
         'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+crypto)
     return float((response.json()[0]['current_price']))
 
