@@ -17,10 +17,10 @@ def get_user_input(text):
             print(f"{e}: Only numbers are allowed as input.")
             continue
 
-        if text == 'ASIC price in €' and user_input < 0:
+        if text == 'ASIC price' and user_input < 0:
             print('ASIC prices cannot be negative.')
             continue
-        if text != 'ASIC price in €' and user_input <= 0:
+        if text != 'ASIC price' and user_input <= 0:
             print(
                 'ASIC operational costs, ASIC revenues and Bitcoin Prices cannot be zero or negative.')
             continue
@@ -57,18 +57,17 @@ def get_fair_price():
     print()
     current_price = get_current_price('bitcoin')
     time_interval = 2  # assuming 2 years of ASIC operation
-    mining_reward = get_mining_reward(time_interval)
     buying_btc = get_buying_btc(time_interval)
-    fair_price = buying_btc / mining_reward * current_price
+    fair_price = math.log(2) * current_price * buying_btc / ASIC_yearly_revenue
     print(
         f'The fair bitcoin price is estimated to be {fair_price:.2f} USD/BTC')
 
 
 if __name__ == "__main__":
 
-    ASIC_price = get_user_input('ASIC price in €')
-    ASIC_yearly_cost = 12 * get_user_input('monthly cost of ASIC in €/month')
-    ASIC_yearly_revenue = 12 * get_user_input('ASIC revenue in €/month')
+    ASIC_price = get_user_input('ASIC price')
+    ASIC_yearly_revenue = 12 * get_user_input('monthly revenue')
+    ASIC_yearly_cost = 12 * get_user_input('monthly operational cost')
     print()
 
     # Assuming Moore's Law
